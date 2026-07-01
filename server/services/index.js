@@ -1,4 +1,4 @@
-const { db } = require("../db");
+const db = require("../db");
 const ReleaseRepository = require("../repositories/releaseRepository");
 const ColumnRepository = require("../repositories/columnRepository");
 const CardRepository = require("../repositories/cardRepository");
@@ -8,14 +8,21 @@ const ColumnService = require("./columnService");
 const CardService = require("./cardService");
 const ChecklistService = require("./checklistService");
 
-const releaseRepo = new ReleaseRepository(db);
-const columnRepo = new ColumnRepository(db);
-const cardRepo = new CardRepository(db);
-const checklistRepo = new ChecklistRepository(db);
+function createServices(database) {
+  const releaseRepo = new ReleaseRepository(database);
+  const columnRepo = new ColumnRepository(database);
+  const cardRepo = new CardRepository(database);
+  const checklistRepo = new ChecklistRepository(database);
 
-module.exports = {
-  releaseService: new ReleaseService(releaseRepo, columnRepo, db),
-  columnService: new ColumnService(columnRepo),
-  cardService: new CardService(cardRepo, checklistRepo),
-  checklistService: new ChecklistService(checklistRepo),
-};
+  return {
+    releaseService: new ReleaseService(releaseRepo, columnRepo, database),
+    columnService: new ColumnService(columnRepo),
+    cardService: new CardService(cardRepo, checklistRepo),
+    checklistService: new ChecklistService(checklistRepo),
+  };
+}
+
+const defaultServices = createServices(db);
+
+module.exports = defaultServices;
+module.exports.createServices = createServices;

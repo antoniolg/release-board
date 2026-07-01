@@ -1,39 +1,43 @@
 const express = require("express");
-const router = express.Router();
-const { cardService } = require("../services");
 const validate = require("../middleware/validate");
 const { cardSchema, cardUpdateSchema, cardMoveSchema } = require("../validators");
 
-router.get("/column/:columnId", (req, res) => {
-  const cards = cardService.getByColumn(Number(req.params.columnId));
-  res.json(cards);
-});
+function createCardsRouter({ cardService }) {
+  const router = express.Router();
 
-router.get("/release/:releaseId", (req, res) => {
-  const cards = cardService.getByRelease(Number(req.params.releaseId));
-  res.json(cards);
-});
+  router.get("/column/:columnId", (req, res) => {
+    const cards = cardService.getByColumn(Number(req.params.columnId));
+    res.json(cards);
+  });
 
-router.post("/", validate(cardSchema), (req, res) => {
-  const card = cardService.create(req.body);
-  res.status(201).json(card);
-});
+  router.get("/release/:releaseId", (req, res) => {
+    const cards = cardService.getByRelease(Number(req.params.releaseId));
+    res.json(cards);
+  });
 
-router.put("/:id", validate(cardUpdateSchema), (req, res) => {
-  const card = cardService.update(Number(req.params.id), req.body);
-  if (!card) return res.status(404).json({ error: "not found" });
-  res.json(card);
-});
+  router.post("/", validate(cardSchema), (req, res) => {
+    const card = cardService.create(req.body);
+    res.status(201).json(card);
+  });
 
-router.patch("/:id/move", validate(cardMoveSchema), (req, res) => {
-  const card = cardService.move(Number(req.params.id), req.body);
-  if (!card) return res.status(404).json({ error: "not found" });
-  res.json(card);
-});
+  router.put("/:id", validate(cardUpdateSchema), (req, res) => {
+    const card = cardService.update(Number(req.params.id), req.body);
+    if (!card) return res.status(404).json({ error: "not found" });
+    res.json(card);
+  });
 
-router.delete("/:id", (req, res) => {
-  cardService.delete(Number(req.params.id));
-  res.json({ ok: true });
-});
+  router.patch("/:id/move", validate(cardMoveSchema), (req, res) => {
+    const card = cardService.move(Number(req.params.id), req.body);
+    if (!card) return res.status(404).json({ error: "not found" });
+    res.json(card);
+  });
 
-module.exports = router;
+  router.delete("/:id", (req, res) => {
+    cardService.delete(Number(req.params.id));
+    res.json({ ok: true });
+  });
+
+  return router;
+}
+
+module.exports = createCardsRouter;
