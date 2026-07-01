@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const validate = require("../middleware/validate");
+const { releaseSchema } = require("../validators");
 
 router.get("/", (req, res) => {
   const releases = db.prepare("SELECT * FROM releases ORDER BY created_at DESC").all();
   res.json(releases);
 });
 
-router.post("/", (req, res) => {
+router.post("/", validate(releaseSchema), (req, res) => {
   const { name, version } = req.body;
-  if (!name || !version) return res.status(400).json({ error: "name and version required" });
 
   const tx = db.transaction(() => {
     const info = db.prepare("INSERT INTO releases (name, version) VALUES (?, ?)").run(name, version);
