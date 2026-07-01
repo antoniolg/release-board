@@ -37,6 +37,10 @@ function up({ context: db }) {
       position INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
     );
+
+    CREATE INDEX IF NOT EXISTS idx_columns_release_id ON columns(release_id);
+    CREATE INDEX IF NOT EXISTS idx_cards_column_id ON cards(column_id);
+    CREATE INDEX IF NOT EXISTS idx_checklist_items_card_id ON checklist_items(card_id);
   `);
 }
 

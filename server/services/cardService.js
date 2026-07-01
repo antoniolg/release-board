@@ -10,8 +10,7 @@ class CardService {
   }
 
   getByRelease(releaseId) {
-    const cards = this.cardRepo.findByRelease(releaseId);
-    return cards.map(c => this._enrichCard(c));
+    return this.cardRepo.findByReleaseWithChecklists(releaseId);
   }
 
   create(data) {

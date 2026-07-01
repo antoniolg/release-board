@@ -22,7 +22,10 @@ function createColumnsRouter({ columnService }) {
   });
 
   router.delete("/:id", (req, res) => {
-    columnService.delete(Number(req.params.id));
+    const info = columnService.delete(Number(req.params.id));
+    if (info && info.changes === 0) {
+      return res.status(404).json({ error: "not found" });
+    }
     res.json({ ok: true });
   });
 

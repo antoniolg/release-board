@@ -1,18 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "./api/client";
+import { LABELS } from "./constants";
 import Board from "./components/Board";
 import ReleaseSelector from "./components/ReleaseSelector";
 import ProgressBar from "./components/ProgressBar";
 import ErrorToast from "./components/ErrorToast";
-
-const LABELS = [
-  { name: "Bug", color: "#ef4444" },
-  { name: "Feature", color: "#6366f1" },
-  { name: "Enhancement", color: "#8b5cf6" },
-  { name: "Docs", color: "#06b6d4" },
-  { name: "Testing", color: "#f59e0b" },
-  { name: "Infra", color: "#84cc16" },
-];
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function App() {
   const [releases, setReleases] = useState([]);
@@ -21,21 +14,22 @@ export default function App() {
   const [cards, setCards] = useState([]);
   const [editingCard, setEditingCard] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const loadReleases = useCallback(async () => {
     try {
       const data = await api.getReleases();
       setReleases(data);
-      if (data.length && !currentRelease) {
-        setCurrentRelease(data[0]);
-      }
+      return data;
     } catch (err) {
       setError(err.message || "Failed to load releases");
+      return [];
     }
-  }, [currentRelease]);
+  }, []);
 
   const loadBoard = useCallback(async () => {
     if (!currentRelease) return;
+    setLoading(true);
     try {
       const [cols, crds] = await Promise.all([
         api.getColumns(currentRelease.id),
@@ -45,12 +39,19 @@ export default function App() {
       setCards(crds);
     } catch (err) {
       setError(err.message || "Failed to load board");
+    } finally {
+      setLoading(false);
     }
   }, [currentRelease]);
 
   useEffect(() => {
-    loadReleases();
-  }, []);
+    loadReleases().then((data) => {
+      setCurrentRelease((prev) => {
+        if (!prev && data.length) return data[0];
+        return prev;
+      });
+    });
+  }, [loadReleases]);
 
   useEffect(() => {
     loadBoard();
@@ -155,6 +156,8 @@ export default function App() {
   const allChecklist = cards.flatMap((c) => c.checklist || []);
   const totalChecks = allChecklist.length;
   const doneChecks = allChecklist.filter((c) => c.checked).length;
+
+  if (loading && !columns.length) return <LoadingSpinner />;
 
   if (!currentRelease && releases.length === 0) {
     return (

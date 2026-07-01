@@ -14,6 +14,35 @@ class CardRepository {
     `).all(releaseId);
   }
 
+  findByReleaseWithChecklists(releaseId) {
+    const cards = this.db.prepare(`
+      SELECT c.* FROM cards c
+      JOIN columns col ON c.column_id = col.id
+      WHERE col.release_id = ?
+      ORDER BY col.position, c.position
+    `).all(releaseId);
+
+    if (cards.length === 0) return [];
+
+    const cardIds = cards.map(c => c.id);
+    const placeholders = cardIds.map(() => "?").join(",");
+    const allChecklists = this.db.prepare(
+      `SELECT * FROM checklist_items WHERE card_id IN (${placeholders}) ORDER BY position`
+    ).all(...cardIds);
+
+    const checklistsByCard = {};
+    for (const item of allChecklists) {
+      if (!checklistsByCard[item.card_id]) checklistsByCard[item.card_id] = [];
+      checklistsByCard[item.card_id].push(item);
+    }
+
+    return cards.map(c => ({
+      ...c,
+      labels: JSON.parse(c.labels || "[]"),
+      checklist: checklistsByCard[c.id] || [],
+    }));
+  }
+
   findById(id) {
     return this.db.prepare("SELECT * FROM cards WHERE id = ?").get(id);
   }

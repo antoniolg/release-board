@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
-
-const AVAILABLE_LABELS = [
-  { name: "Bug", color: "#ef4444" },
-  { name: "Feature", color: "#6366f1" },
-  { name: "Enhancement", color: "#8b5cf6" },
-  { name: "Docs", color: "#06b6d4" },
-  { name: "Testing", color: "#f59e0b" },
-  { name: "Infra", color: "#84cc16" },
-];
+import { LABELS as AVAILABLE_LABELS } from "../constants";
 
 export default function CardModal({ card, onSave, onDelete, onClose }) {
   const [title, setTitle] = useState(card.title);
