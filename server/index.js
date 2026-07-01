@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const apiLimiter = require("./middleware/rateLimiter");
 const releasesRouter = require("./routes/releases");
 const columnsRouter = require("./routes/columns");
 const cardsRouter = require("./routes/cards");
@@ -11,6 +12,8 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api", apiLimiter);
 
 app.use("/api/releases", releasesRouter);
 app.use("/api/columns", columnsRouter);
