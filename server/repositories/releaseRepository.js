@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+
 class ReleaseRepository {
   constructor(db) {
     this.db = db;
@@ -12,7 +14,8 @@ class ReleaseRepository {
   }
 
   create(name, version) {
-    return this.db.prepare("INSERT INTO releases (name, version) VALUES (?, ?)").run(name, version);
+    const id = uuidv4();
+    return { ...this.db.prepare("INSERT INTO releases (id, name, version) VALUES (?, ?, ?)").run(id, name, version), id };
   }
 
   delete(id) {

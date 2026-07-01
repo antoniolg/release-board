@@ -10,7 +10,7 @@ class ColumnService {
   create(releaseId, name, color) {
     const maxPos = this.columnRepo.maxPosition(releaseId);
     const info = this.columnRepo.create(releaseId, name, color || "#6366f1", maxPos.p + 1);
-    return this.columnRepo.findById(info.lastInsertRowid);
+    return this.columnRepo.findById(info.id);
   }
 
   update(id, data) {

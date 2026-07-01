@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+
 class ColumnRepository {
   constructor(db) {
     this.db = db;
@@ -12,7 +14,8 @@ class ColumnRepository {
   }
 
   create(releaseId, name, color, position) {
-    return this.db.prepare("INSERT INTO columns (release_id, name, color, position) VALUES (?,?,?,?)").run(releaseId, name, color, position);
+    const id = uuidv4();
+    return { ...this.db.prepare("INSERT INTO columns (id, release_id, name, color, position) VALUES (?,?,?,?,?)").run(id, releaseId, name, color, position), id };
   }
 
   update(id, name, color, position) {

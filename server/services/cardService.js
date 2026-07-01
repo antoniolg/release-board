@@ -16,7 +16,7 @@ class CardService {
   create(data) {
     const maxPos = this.cardRepo.maxPosition(data.column_id);
     const info = this.cardRepo.create(data.column_id, data.title, data.description || "", data.priority || "medium", data.labels || [], maxPos.p + 1);
-    const card = this.cardRepo.findById(info.lastInsertRowid);
+    const card = this.cardRepo.findById(info.id);
     return { ...this._parseCard(card), checklist: [] };
   }
 

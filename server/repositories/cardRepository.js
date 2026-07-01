@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+
 class CardRepository {
   constructor(db) {
     this.db = db;
@@ -48,7 +50,8 @@ class CardRepository {
   }
 
   create(columnId, title, description, priority, labels, position) {
-    return this.db.prepare("INSERT INTO cards (column_id, title, description, priority, labels, position) VALUES (?,?,?,?,?,?)").run(columnId, title, description, priority, JSON.stringify(labels), position);
+    const id = uuidv4();
+    return { ...this.db.prepare("INSERT INTO cards (id, column_id, title, description, priority, labels, position) VALUES (?,?,?,?,?,?,?)").run(id, columnId, title, description, priority, JSON.stringify(labels), position), id };
   }
 
   update(id, title, description, priority, labels, columnId, position) {

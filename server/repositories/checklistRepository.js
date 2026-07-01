@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require("uuid");
+
 class ChecklistRepository {
   constructor(db) {
     this.db = db;
@@ -12,7 +14,8 @@ class ChecklistRepository {
   }
 
   create(cardId, text, position) {
-    return this.db.prepare("INSERT INTO checklist_items (card_id, text, position) VALUES (?,?,?)").run(cardId, text, position);
+    const id = uuidv4();
+    return { ...this.db.prepare("INSERT INTO checklist_items (id, card_id, text, position) VALUES (?,?,?,?)").run(id, cardId, text, position), id };
   }
 
   update(id, text, checked, position) {

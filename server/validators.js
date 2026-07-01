@@ -6,14 +6,14 @@ const releaseSchema = z.object({
 });
 
 const columnSchema = z.object({
-  release_id: z.coerce.number().int().positive(),
+  release_id: z.string().uuid(),
   name: z.string().min(1).max(255),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   position: z.coerce.number().int().min(0).optional(),
 });
 
 const cardSchema = z.object({
-  column_id: z.coerce.number().int().positive(),
+  column_id: z.string().uuid(),
   title: z.string().min(1).max(500),
   description: z.string().max(10000).optional(),
   priority: z.enum(["low", "medium", "high", "critical"]).optional(),
@@ -26,12 +26,12 @@ const cardUpdateSchema = cardSchema.partial().extend({
 });
 
 const cardMoveSchema = z.object({
-  column_id: z.coerce.number().int().positive().optional(),
+  column_id: z.string().uuid().optional(),
   position: z.coerce.number().int().min(0).optional(),
 });
 
 const checklistItemSchema = z.object({
-  card_id: z.coerce.number().int().positive(),
+  card_id: z.string().uuid(),
   text: z.string().min(1).max(1000),
 });
 

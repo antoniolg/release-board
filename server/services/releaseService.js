@@ -19,9 +19,9 @@ class ReleaseService {
         { name: "Done", color: "#10b981", position: 3 },
       ];
       for (const col of defaultCols) {
-        this.columnRepo.create(info.lastInsertRowid, col.name, col.color, col.position);
+        this.columnRepo.create(info.id, col.name, col.color, col.position);
       }
-      return info.lastInsertRowid;
+      return info.id;
     });
 
     const id = tx();

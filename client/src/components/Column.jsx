@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "./Card";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function Column({
   column,
@@ -18,6 +19,7 @@ export default function Column({
 }) {
   const [newTitle, setNewTitle] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleAdd = () => {
     if (!newTitle.trim()) return;
@@ -41,9 +43,7 @@ export default function Column({
         </div>
         <button
           className="btn btn-ghost btn-sm"
-          onClick={() => {
-            if (confirm(`Delete column "${column.name}"?`)) onDeleteColumn(column.id);
-          }}
+          onClick={() => setConfirmDelete(true)}
           title="Delete column"
         >
           &times;
@@ -71,18 +71,10 @@ export default function Column({
               e.preventDefault();
               handleAdd();
             }}
-            style={{ display: "flex", gap: 6 }}
+            className="column-new-card-form"
           >
             <input
-              style={{
-                flex: 1,
-                background: "var(--bg)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)",
-                padding: "6px 10px",
-                color: "var(--text)",
-                fontSize: 13,
-              }}
+              className="column-new-card-input"
               placeholder="Card title..."
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -97,14 +89,24 @@ export default function Column({
           </form>
         ) : (
           <button
-            className="btn btn-ghost btn-sm"
-            style={{ width: "100%", justifyContent: "flex-start" }}
+            className="btn btn-ghost btn-sm column-add-btn"
             onClick={() => setShowForm(true)}
           >
             + Add card
           </button>
         )}
       </div>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete column "${column.name}"?`}
+          onConfirm={() => {
+            setConfirmDelete(false);
+            onDeleteColumn(column.id);
+          }}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </div>
   );
 }

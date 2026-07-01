@@ -6,7 +6,7 @@ function createColumnsRouter({ columnService }) {
   const router = express.Router();
 
   router.get("/:releaseId", (req, res) => {
-    const cols = columnService.getByRelease(Number(req.params.releaseId));
+    const cols = columnService.getByRelease(req.params.releaseId);
     res.json(cols);
   });
 
@@ -16,13 +16,13 @@ function createColumnsRouter({ columnService }) {
   });
 
   router.put("/:id", validate(columnSchema.partial()), (req, res) => {
-    const col = columnService.update(Number(req.params.id), req.body);
+    const col = columnService.update(req.params.id, req.body);
     if (!col) return res.status(404).json({ error: "not found" });
     res.json(col);
   });
 
   router.delete("/:id", (req, res) => {
-    const info = columnService.delete(Number(req.params.id));
+    const info = columnService.delete(req.params.id);
     if (info && info.changes === 0) {
       return res.status(404).json({ error: "not found" });
     }

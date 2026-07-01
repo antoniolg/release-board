@@ -10,7 +10,7 @@ class ChecklistService {
   create(data) {
     const maxPos = this.checklistRepo.maxPosition(data.card_id);
     const info = this.checklistRepo.create(data.card_id, data.text, maxPos.p + 1);
-    return this.checklistRepo.findById(info.lastInsertRowid);
+    return this.checklistRepo.findById(info.id);
   }
 
   update(id, data) {

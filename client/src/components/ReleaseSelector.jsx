@@ -1,9 +1,11 @@
 import { useState } from "react";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function ReleaseSelector({ releases, current, onSelect, onCreate, onDelete, empty }) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [version, setVersion] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,34 +42,30 @@ export default function ReleaseSelector({ releases, current, onSelect, onCreate,
       </select>
 
       {!showForm ? (
-        <div style={{ display: "flex", gap: 6 }}>
+        <div className="release-actions">
           <button className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
             + New
           </button>
           {current && (
             <button
               className="btn btn-danger btn-sm"
-              onClick={() => {
-                if (confirm(`Delete "${current.name}"?`)) onDelete(current.id);
-              }}
+              onClick={() => setConfirmDelete(true)}
             >
               Delete
             </button>
           )}
         </div>
       ) : (
-        <form onSubmit={handleSubmit} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+        <form onSubmit={handleSubmit} className="release-form">
           <input
-            className="release-select"
-            style={{ minWidth: 120 }}
+            className="release-select release-form-name"
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoFocus
           />
           <input
-            className="release-select"
-            style={{ minWidth: 80 }}
+            className="release-select release-form-version"
             placeholder="v1.0"
             value={version}
             onChange={(e) => setVersion(e.target.value)}
@@ -79,6 +77,17 @@ export default function ReleaseSelector({ releases, current, onSelect, onCreate,
             Cancel
           </button>
         </form>
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete "${current.name}"?`}
+          onConfirm={() => {
+            setConfirmDelete(false);
+            onDelete(current.id);
+          }}
+          onCancel={() => setConfirmDelete(false)}
+        />
       )}
     </>
   );

@@ -668,3 +668,113 @@ select {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Confirm dialog */
+.confirm-dialog {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.confirm-dialog p {
+  margin: 0 0 20px;
+  font-size: 15px;
+  color: #374151;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+/* Inline style extractions */
+.column-new-card-form {
+  display: flex;
+  gap: 6px;
+}
+
+.column-new-card-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.column-add-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.card-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.board-new-col {
+  padding: 16px;
+}
+
+.board-new-col-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.board-new-col-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.board-new-col-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.release-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.release-form-name {
+  min-width: 120px;
+}
+
+.release-form-version {
+  min-width: 80px;
+}
+
+.release-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.progress-track {
+  flex: 1;
+}
+
+.progress-track-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+}

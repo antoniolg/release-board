@@ -79,29 +79,22 @@ export default function Board({
         })}
 
         {showNewCol ? (
-          <div className="column" style={{ padding: 16 }}>
+          <div className="column board-new-col">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleAddColumn();
               }}
-              style={{ display: "flex", flexDirection: "column", gap: 8 }}
+              className="board-new-col-form"
             >
               <input
-                style={{
-                  background: "var(--bg)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius-sm)",
-                  padding: "8px 12px",
-                  color: "var(--text)",
-                  fontSize: 14,
-                }}
+                className="board-new-col-input"
                 placeholder="Column name"
                 value={newColName}
                 onChange={(e) => setNewColName(e.target.value)}
                 autoFocus
               />
-              <div style={{ display: "flex", gap: 6 }}>
+              <div className="board-new-col-actions">
                 <button className="btn btn-primary btn-sm" type="submit">
                   Add
                 </button>

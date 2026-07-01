@@ -4,8 +4,8 @@ export default function ProgressBar({ doneCards, totalCards, doneChecks, totalCh
 
   return (
     <div className="progress-section">
-      <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+      <div className="progress-track">
+        <div className="progress-track-header">
           <span>Cards: <strong>{doneCards}/{totalCards}</strong></span>
           <span>{cardPct}%</span>
         </div>
@@ -13,8 +13,8 @@ export default function ProgressBar({ doneCards, totalCards, doneChecks, totalCh
           <div className="progress-bar-fill" style={{ width: `${cardPct}%` }} />
         </div>
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, fontSize: 12 }}>
+      <div className="progress-track">
+        <div className="progress-track-header">
           <span>Checklist: <strong>{doneChecks}/{totalChecks}</strong></span>
           <span>{checkPct}%</span>
         </div>

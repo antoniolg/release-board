@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import { LABELS as AVAILABLE_LABELS } from "../constants";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function CardModal({ card, onSave, onDelete, onClose }) {
   const [title, setTitle] = useState(card.title);
@@ -9,6 +10,7 @@ export default function CardModal({ card, onSave, onDelete, onClose }) {
   const [selectedLabels, setSelectedLabels] = useState(card.labels || []);
   const [checklist, setChecklist] = useState(card.checklist || []);
   const [newCheckText, setNewCheckText] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -86,7 +88,7 @@ export default function CardModal({ card, onSave, onDelete, onClose }) {
                 <span
                   key={lbl.name}
                   className={`label ${selectedLabels.includes(lbl.name) ? "active" : ""}`}
-                  style={{ background: lbl.color, cursor: "pointer" }}
+                  style={{ background: lbl.color }}
                   onClick={() => toggleLabel(lbl.name)}
                 >
                   {lbl.name}
@@ -126,12 +128,10 @@ export default function CardModal({ card, onSave, onDelete, onClose }) {
             </form>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 8 }}>
+          <div className="card-modal-footer">
             <button
               className="btn btn-danger btn-sm"
-              onClick={() => {
-                if (confirm("Delete this card?")) onDelete(card.id);
-              }}
+              onClick={() => setConfirmDelete(true)}
             >
               Delete Card
             </button>
@@ -141,6 +141,17 @@ export default function CardModal({ card, onSave, onDelete, onClose }) {
           </div>
         </div>
       </div>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message="Delete this card?"
+          onConfirm={() => {
+            setConfirmDelete(false);
+            onDelete(card.id);
+          }}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </div>
   );
 }
