@@ -1,38 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const { checklistService } = require("../services");
 const validate = require("../middleware/validate");
 const { checklistItemSchema, checklistItemUpdateSchema } = require("../validators");
 
 router.get("/:cardId", (req, res) => {
-  const items = db.prepare("SELECT * FROM checklist_items WHERE card_id = ? ORDER BY position").all(req.params.cardId);
+  const items = checklistService.getByCard(Number(req.params.cardId));
   res.json(items);
 });
 
 router.post("/", validate(checklistItemSchema), (req, res) => {
-  const { card_id, text } = req.body;
-  const maxPos = db.prepare("SELECT COALESCE(MAX(position),-1) as p FROM checklist_items WHERE card_id=?").get(card_id);
-  const info = db.prepare("INSERT INTO checklist_items (card_id, text, position) VALUES (?,?,?)").run(card_id, text, maxPos.p + 1);
-  const item = db.prepare("SELECT * FROM checklist_items WHERE id = ?").get(info.lastInsertRowid);
+  const item = checklistService.create(req.body);
   res.status(201).json(item);
 });
 
 router.put("/:id", validate(checklistItemUpdateSchema), (req, res) => {
-  const existing = db.prepare("SELECT * FROM checklist_items WHERE id = ?").get(req.params.id);
-  if (!existing) return res.status(404).json({ error: "not found" });
-  const { text, checked, position } = req.body;
-  db.prepare("UPDATE checklist_items SET text=?, checked=?, position=? WHERE id=?").run(
-    text ?? existing.text,
-    checked !== undefined ? (checked ? 1 : 0) : existing.checked,
-    position ?? existing.position,
-    req.params.id
-  );
-  const item = db.prepare("SELECT * FROM checklist_items WHERE id = ?").get(req.params.id);
+  const item = checklistService.update(Number(req.params.id), req.body);
+  if (!item) return res.status(404).json({ error: "not found" });
   res.json(item);
 });
 
 router.delete("/:id", (req, res) => {
-  db.prepare("DELETE FROM checklist_items WHERE id = ?").run(req.params.id);
+  checklistService.delete(Number(req.params.id));
   res.json({ ok: true });
 });
 

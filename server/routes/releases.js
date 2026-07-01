@@ -1,39 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const { releaseService } = require("../services");
 const validate = require("../middleware/validate");
 const { releaseSchema } = require("../validators");
 
 router.get("/", (req, res) => {
-  const releases = db.prepare("SELECT * FROM releases ORDER BY created_at DESC").all();
+  const releases = releaseService.getAll();
   res.json(releases);
 });
 
 router.post("/", validate(releaseSchema), (req, res) => {
-  const { name, version } = req.body;
-
-  const tx = db.transaction(() => {
-    const info = db.prepare("INSERT INTO releases (name, version) VALUES (?, ?)").run(name, version);
-    const defaultCols = [
-      { name: "Backlog", color: "#6b7280", position: 0 },
-      { name: "In Progress", color: "#f59e0b", position: 1 },
-      { name: "Review", color: "#3b82f6", position: 2 },
-      { name: "Done", color: "#10b981", position: 3 },
-    ];
-    const insertCol = db.prepare("INSERT INTO columns (release_id, name, color, position) VALUES (?, ?, ?, ?)");
-    for (const col of defaultCols) {
-      insertCol.run(info.lastInsertRowid, col.name, col.color, col.position);
-    }
-    return info.lastInsertRowid;
-  });
-
-  const id = tx();
-  const release = db.prepare("SELECT * FROM releases WHERE id = ?").get(id);
+  const release = releaseService.create(req.body.name, req.body.version);
   res.status(201).json(release);
 });
 
 router.delete("/:id", (req, res) => {
-  db.prepare("DELETE FROM releases WHERE id = ?").run(req.params.id);
+  releaseService.delete(Number(req.params.id));
   res.json({ ok: true });
 });
 
