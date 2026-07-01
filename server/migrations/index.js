@@ -5,7 +5,7 @@ const fs = require("fs");
 function createMigrator(db) {
   return new Umzug({
     migrations: {
-        glob: ["*.js", { cwd: __dirname, ignore: ["index.js"] }],
+        glob: ["[0-9]*.js", { cwd: __dirname }],
       resolve({ name, path: filePath, context }) {
         const migration = require(filePath);
         return {

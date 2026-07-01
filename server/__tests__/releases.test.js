@@ -2,13 +2,11 @@ const { createDb } = require("../db");
 const { createMigrator } = require("../migrations");
 
 describe("releases API", () => {
-  let app, db;
+  let db;
 
   beforeAll(async () => {
     db = createDb(":memory:");
     await createMigrator(db).up();
-    app = express();
-    app.use(express.json());
   });
 
   afterAll(() => { if (db) db.close(); });

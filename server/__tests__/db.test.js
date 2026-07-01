@@ -5,9 +5,8 @@ describe("createDb", () => {
   let db;
   afterEach(() => { if (db) db.close(); });
 
-  it("creates an in-memory database", async () => {
+  it("creates an in-memory database", () => {
     db = createDb(":memory:");
-    await createMigrator(db).up();
     expect(db).toBeDefined();
   });
 
