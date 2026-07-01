@@ -7,6 +7,7 @@ const db = require("./db");
 const { createMigrator } = require("./migrations");
 const apiLimiter = require("./middleware/rateLimiter");
 const authMiddleware = require("./middleware/auth");
+const errorHandler = require("./middleware/errorHandler");
 const releasesRouter = require("./routes/releases");
 const columnsRouter = require("./routes/columns");
 const cardsRouter = require("./routes/cards");
@@ -49,6 +50,8 @@ app.use("/api/cards", csrfProtection, cardsRouter);
 app.use("/api/checklists", csrfProtection, checklistsRouter);
 
 app.use("/data", (req, res) => res.status(403).json({ error: "Forbidden" }));
+
+app.use(errorHandler);
 
 const clientBuild = path.join(__dirname, "..", "client", "dist");
 app.use(express.static(clientBuild));

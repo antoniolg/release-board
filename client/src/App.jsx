@@ -3,6 +3,7 @@ import { api } from "./api/client";
 import Board from "./components/Board";
 import ReleaseSelector from "./components/ReleaseSelector";
 import ProgressBar from "./components/ProgressBar";
+import ErrorToast from "./components/ErrorToast";
 
 const LABELS = [
   { name: "Bug", color: "#ef4444" },
@@ -19,23 +20,32 @@ export default function App() {
   const [columns, setColumns] = useState([]);
   const [cards, setCards] = useState([]);
   const [editingCard, setEditingCard] = useState(null);
+  const [error, setError] = useState(null);
 
   const loadReleases = useCallback(async () => {
-    const data = await api.getReleases();
-    setReleases(data);
-    if (data.length && !currentRelease) {
-      setCurrentRelease(data[0]);
+    try {
+      const data = await api.getReleases();
+      setReleases(data);
+      if (data.length && !currentRelease) {
+        setCurrentRelease(data[0]);
+      }
+    } catch (err) {
+      setError(err.message || "Failed to load releases");
     }
   }, [currentRelease]);
 
   const loadBoard = useCallback(async () => {
     if (!currentRelease) return;
-    const [cols, crds] = await Promise.all([
-      api.getColumns(currentRelease.id),
-      api.getCardsByRelease(currentRelease.id),
-    ]);
-    setColumns(cols);
-    setCards(crds);
+    try {
+      const [cols, crds] = await Promise.all([
+        api.getColumns(currentRelease.id),
+        api.getCardsByRelease(currentRelease.id),
+      ]);
+      setColumns(cols);
+      setCards(crds);
+    } catch (err) {
+      setError(err.message || "Failed to load board");
+    }
   }, [currentRelease]);
 
   useEffect(() => {
@@ -47,47 +57,79 @@ export default function App() {
   }, [currentRelease, loadBoard]);
 
   const handleCreateRelease = async (name, version) => {
-    const rel = await api.createRelease({ name, version });
-    await loadReleases();
-    setCurrentRelease(rel);
+    try {
+      const rel = await api.createRelease({ name, version });
+      await loadReleases();
+      setCurrentRelease(rel);
+    } catch (err) {
+      setError(err.message || "Failed to create release");
+    }
   };
 
   const handleDeleteRelease = async (id) => {
-    await api.deleteRelease(id);
-    setCurrentRelease(null);
-    await loadReleases();
+    try {
+      await api.deleteRelease(id);
+      setCurrentRelease(null);
+      await loadReleases();
+    } catch (err) {
+      setError(err.message || "Failed to delete release");
+    }
   };
 
   const handleCreateColumn = async (name) => {
-    await api.createColumn({ release_id: currentRelease.id, name });
-    loadBoard();
+    try {
+      await api.createColumn({ release_id: currentRelease.id, name });
+      loadBoard();
+    } catch (err) {
+      setError(err.message || "Failed to create column");
+    }
   };
 
   const handleDeleteColumn = async (id) => {
-    await api.deleteColumn(id);
-    loadBoard();
+    try {
+      await api.deleteColumn(id);
+      loadBoard();
+    } catch (err) {
+      setError(err.message || "Failed to delete column");
+    }
   };
 
   const handleCreateCard = async (columnId, title) => {
-    await api.createCard({ column_id: columnId, title });
-    loadBoard();
+    try {
+      await api.createCard({ column_id: columnId, title });
+      loadBoard();
+    } catch (err) {
+      setError(err.message || "Failed to create card");
+    }
   };
 
   const handleMoveCard = async (cardId, targetColumnId, position) => {
-    await api.moveCard(cardId, { column_id: targetColumnId, position });
-    loadBoard();
+    try {
+      await api.moveCard(cardId, { column_id: targetColumnId, position });
+      loadBoard();
+    } catch (err) {
+      setError(err.message || "Failed to move card");
+    }
   };
 
   const handleUpdateCard = async (cardId, data) => {
-    await api.updateCard(cardId, data);
-    loadBoard();
-    setEditingCard(null);
+    try {
+      await api.updateCard(cardId, data);
+      loadBoard();
+      setEditingCard(null);
+    } catch (err) {
+      setError(err.message || "Failed to update card");
+    }
   };
 
   const handleDeleteCard = async (cardId) => {
-    await api.deleteCard(cardId);
-    loadBoard();
-    setEditingCard(null);
+    try {
+      await api.deleteCard(cardId);
+      loadBoard();
+      setEditingCard(null);
+    } catch (err) {
+      setError(err.message || "Failed to delete card");
+    }
   };
 
   const totalCards = cards.length;
@@ -113,6 +155,7 @@ export default function App() {
           onDelete={handleDeleteRelease}
           empty
         />
+        <ErrorToast message={error} onClose={() => setError(null)} />
       </div>
     );
   }
@@ -156,6 +199,7 @@ export default function App() {
           />
         </>
       )}
+      <ErrorToast message={error} onClose={() => setError(null)} />
     </>
   );
 }
