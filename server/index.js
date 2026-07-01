@@ -3,6 +3,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const csrf = require("csurf");
 const path = require("path");
+const db = require("./db");
+const { createMigrator } = require("./migrations");
 const apiLimiter = require("./middleware/rateLimiter");
 const authMiddleware = require("./middleware/auth");
 const releasesRouter = require("./routes/releases");
@@ -54,6 +56,8 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(clientBuild, "index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+createMigrator(db).up().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
 });

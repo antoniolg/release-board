@@ -15,9 +15,7 @@ function createDb(dbPath) {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
 
-  const { createMigrator } = require("./migrations");
-  const migrator = createMigrator(db);
-  migrator.up();
+  db.exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY)");
 
   return db;
 }
