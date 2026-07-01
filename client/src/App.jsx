@@ -78,57 +78,71 @@ export default function App() {
 
   const handleCreateColumn = async (name) => {
     try {
-      await api.createColumn({ release_id: currentRelease.id, name });
-      loadBoard();
+      const newCol = await api.createColumn({ release_id: currentRelease.id, name });
+      setColumns(prev => [...prev, newCol]);
     } catch (err) {
       setError(err.message || "Failed to create column");
+      loadBoard();
     }
   };
 
   const handleDeleteColumn = async (id) => {
+    const prevCols = columns;
+    const prevCards = cards;
+    setColumns(prev => prev.filter(c => c.id !== id));
+    setCards(prev => prev.filter(c => c.column_id !== id));
     try {
       await api.deleteColumn(id);
-      loadBoard();
     } catch (err) {
       setError(err.message || "Failed to delete column");
+      setColumns(prevCols);
+      setCards(prevCards);
     }
   };
 
   const handleCreateCard = async (columnId, title) => {
     try {
-      await api.createCard({ column_id: columnId, title });
-      loadBoard();
+      const newCard = await api.createCard({ column_id: columnId, title });
+      setCards(prev => [...prev, newCard]);
     } catch (err) {
       setError(err.message || "Failed to create card");
+      loadBoard();
     }
   };
 
   const handleMoveCard = async (cardId, targetColumnId, position) => {
+    const prevCards = cards;
+    setCards(prev => prev.map(c =>
+      c.id === cardId ? { ...c, column_id: targetColumnId, position } : c
+    ));
     try {
       await api.moveCard(cardId, { column_id: targetColumnId, position });
-      loadBoard();
     } catch (err) {
       setError(err.message || "Failed to move card");
+      setCards(prevCards);
     }
   };
 
   const handleUpdateCard = async (cardId, data) => {
     try {
-      await api.updateCard(cardId, data);
-      loadBoard();
+      const updated = await api.updateCard(cardId, data);
+      setCards(prev => prev.map(c => c.id === cardId ? updated : c));
       setEditingCard(null);
     } catch (err) {
       setError(err.message || "Failed to update card");
+      loadBoard();
     }
   };
 
   const handleDeleteCard = async (cardId) => {
+    const prevCards = cards;
+    setCards(prev => prev.filter(c => c.id !== cardId));
+    setEditingCard(null);
     try {
       await api.deleteCard(cardId);
-      loadBoard();
-      setEditingCard(null);
     } catch (err) {
       setError(err.message || "Failed to delete card");
+      setCards(prevCards);
     }
   };
 
