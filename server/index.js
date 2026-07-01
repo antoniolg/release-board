@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const apiLimiter = require("./middleware/rateLimiter");
+const authMiddleware = require("./middleware/auth");
 const releasesRouter = require("./routes/releases");
 const columnsRouter = require("./routes/columns");
 const cardsRouter = require("./routes/cards");
@@ -11,6 +13,11 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+
+app.use("/api", apiLimiter);
+app.use("/api", authMiddleware);
 
 app.use("/api/releases", releasesRouter);
 app.use("/api/columns", columnsRouter);
