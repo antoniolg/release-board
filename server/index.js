@@ -24,6 +24,7 @@ app.use(express.json());
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
+app.use("/api", apiLimiter);
 app.use("/api", authMiddleware);
 
 app.get("/api/csrf-token", csrfProtection, (req, res) => {
