@@ -1,15 +1,10 @@
 const Database = require("better-sqlite3");
 const path = require("path");
-
-const DB_PATH = path.join(__dirname, "data", "releases.db");
 const fs = require("fs");
-fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-const db = new Database(DB_PATH);
-db.pragma("journal_mode = WAL");
-db.pragma("foreign_keys = ON");
+const DEFAULT_DB_PATH = path.join(__dirname, "data", "releases.db");
 
-db.exec(`
+const SCHEMA = `
   CREATE TABLE IF NOT EXISTS releases (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -46,6 +41,22 @@ db.exec(`
     position INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
   );
-`);
+`;
 
-module.exports = db;
+function createDb(dbPath) {
+  dbPath = dbPath || DEFAULT_DB_PATH;
+
+  if (dbPath !== ":memory:") {
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  }
+
+  const db = new Database(dbPath);
+  db.pragma("journal_mode = WAL");
+  db.pragma("foreign_keys = ON");
+  db.exec(SCHEMA);
+
+  return db;
+}
+
+module.exports = createDb();
+module.exports.createDb = createDb;
