@@ -1,10 +1,32 @@
 const BASE = "/api";
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+let csrfToken = null;
+
+async function getCsrfToken(refresh = false) {
+  if (!csrfToken || refresh) {
+    const res = await fetch(`${BASE}/csrf-token`, { credentials: "same-origin" });
+    if (!res.ok) throw new Error("Could not get CSRF token");
+    csrfToken = (await res.json()).csrfToken;
+  }
+  return csrfToken;
+}
+
+async function send(path, opts, refreshToken) {
+  const method = (opts.method || "GET").toUpperCase();
+  const headers = { "Content-Type": "application/json", ...opts.headers };
+  if (!SAFE_METHODS.has(method)) {
+    headers["X-CSRF-Token"] = await getCsrfToken(refreshToken);
+  }
+  return fetch(`${BASE}${path}`, { credentials: "same-origin", ...opts, headers });
+}
 
 async function request(path, opts = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...opts,
-  });
+  let res = await send(path, opts, false);
+  if (res.status === 403 && !SAFE_METHODS.has((opts.method || "GET").toUpperCase())) {
+    // The token may have expired with the cookie: fetch a fresh one and retry once.
+    res = await send(path, opts, true);
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || res.statusText);

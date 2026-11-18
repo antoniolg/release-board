@@ -1,10 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-const csrf = require("csurf");
 const apiLimiter = require("./middleware/rateLimiter");
 const authMiddleware = require("./middleware/auth");
 const errorHandler = require("./middleware/errorHandler");
+const { csrfProtection: verifyCsrf, issueCsrfToken } = require("./middleware/csrf");
 const { createServices } = require("./services");
 const ReleasesRouter = require("./routes/releases");
 const ColumnsRouter = require("./routes/columns");
@@ -13,7 +13,7 @@ const ChecklistsRouter = require("./routes/checklists");
 
 function createApp(db, { enableCsrf = true } = {}) {
   const app = express();
-  const csrfProtection = enableCsrf ? csrf({ cookie: true }) : (req, res, next) => next();
+  const csrfProtection = enableCsrf ? verifyCsrf : (req, res, next) => next();
 
   app.use(cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
@@ -28,9 +28,7 @@ function createApp(db, { enableCsrf = true } = {}) {
   app.use("/api", authMiddleware);
 
   if (enableCsrf) {
-    app.get("/api/csrf-token", csrfProtection, (req, res) => {
-      res.json({ csrfToken: req.csrfToken() });
-    });
+    app.get("/api/csrf-token", issueCsrfToken);
   }
 
   const services = createServices(db);
